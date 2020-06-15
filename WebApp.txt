@@ -64,6 +64,8 @@ ExecStart=/home/saym/StudyWebApp/appvevn/bin/gunicorn --workers 3 --bind unix:St
 [Install]
 WantedBy=multi-user.target
 
+sudo systemctl stop StudyWebApp
+sudo systemctl disable StudyWebApp
 
 sudo systemctl start StudyWebApp
 sudo systemctl enable StudyWebApp
