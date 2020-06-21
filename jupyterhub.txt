@@ -1,0 +1,68 @@
+sudo apt-get update
+sudo apt-get upgrade
+sudo su
+apt-get install python3-venv python3-pip
+
+python3 -m venv /opt/jupyterhub/
+
+/opt/jupyterhub/bin/python3 -m pip install wheel
+/opt/jupyterhub/bin/python3 -m pip install jupyterhub jupyterlab
+/opt/jupyterhub/bin/python3 -m pip install ipywidgets
+
+apt install nodejs npm
+npm install -g configurable-http-proxy
+
+mkdir -p /opt/jupyterhub/etc/jupyterhub/
+cd /opt/jupyterhub/etc/jupyterhub/
+
+/opt/jupyterhub/bin/jupyterhub --generate-config
+
+nano jupyterhub_config.py
+
+c.Spawner.default_url = '/lab' 
+
+mkdir -p /opt/jupyterhub/etc/systemd
+/opt/jupyterhub/etc/systemd/jupyterhub.service
+
+
+[Unit]
+Description=JupyterHub
+After=syslog.target network.target
+
+[Service]
+User=root
+Environment="PATH=/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/opt/jupyterhub/bin"
+ExecStart=/opt/jupyterhub/bin/jupyterhub -f /opt/jupyterhub/etc/jupyterhub/jupyterhub_config.py
+
+[Install]
+WantedBy=multi-user.target
+
+ln -s /opt/jupyterhub/etc/systemd/jupyterhub.service /etc/systemd/system/jupyterhub.service
+
+systemctl daemon-reload
+systemctl enable jupyterhub.service
+systemctl start jupyterhub.service
+systemctl status jupyterhub.service
+
+systemctl disable jupyterhub.service
+systemctl stop jupyterhub.service
+
+
+apt install curl
+install -o root -g root -m 644 conda.gpg /etc/apt/trusted.gpg.d/
+sudo echo "deb [arch=amd64] https://repo.anaconda.com/pkgs/misc/debrepo/conda stable main" > /etc/apt/sources.list.d/conda.list
+
+apt update
+apt install conda
+
+ln -s /opt/conda/etc/profile.d/conda.sh /etc/profile.d/conda.sh
+mkdir /opt/conda/envs/
+
+/opt/conda/bin/conda create --prefix /opt/conda/envs/python python=3.7 ipykernel
+
+/opt/conda/envs/python/bin/python -m ipykernel install --prefix=/opt/jupyterhub/ --name 'python' --display-name "Python (default)"
+
+apt install nginx
+
+apt-get purge nginx nginx-common
+apt-get autoremove
